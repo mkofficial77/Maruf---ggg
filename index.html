@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OWNER MARUF VIP ENGINE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+    
+    body { 
+      background: #060212; 
+      color: #fff; 
+      min-height: 100vh; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      padding-top: 75px; 
+      overflow-x: hidden;
+    }
+    
+    /* PERMANENT TOP HEADER NAVBAR */
+    .permanent-top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 70px;
+      background: rgba(12, 5, 33, 0.98);
+      border-bottom: 2px solid #ff007f;
+      box-shadow: 0 4px 25px rgba(255, 0, 127, 0.4);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0 10px;
+      z-index: 999999; /* পার্মানেন্ট রাখার জন্য হাই Z-INDEX */
+    }
+
+    .nav-btn {
+      flex: 1;
+      max-width: 180px;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.3s ease;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-game-nav {
+      background: linear-gradient(90deg, #ffb703, #fb8500);
+      color: #000;
+      box-shadow: 0 0 10px rgba(251, 133, 0, 0.5);
+    }
+
+    .btn-engine-nav {
+      background: linear-gradient(90deg, #7928ca, #ff007f);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(255, 0, 127, 0.5);
+    }
+
+    .nav-btn:hover {
+      transform: scale(1.03);
+      filter: brightness(1.1);
+    }
+
+    .content-area {
+      width: 100%;
+      max-width: 450px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .brand-header {
+      font-size: 24px;
+      font-weight: 800;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, #ff007f, #9d4edd, #ffb703);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 10px 0 15px 0;
+      text-shadow: 0 0 15px rgba(255,0,127,0.5);
+    }
+
+    /* GAME IFRAME DISPLAY AREA */
+    #gameDisplayArea {
+      display: none;
+      width: 100%;
+      height: calc(100vh - 85px);
+      border: none;
+      border-radius: 12px;
+    }
+
+    /* ACCESS VERIFICATION BOX */
+    .access-box {
+      background: rgba(18, 8, 38, 0.95);
+      padding: 20px;
+      border-radius: 15px;
+      border: 1px solid #ff007f;
+      box-shadow: 0 0 25px rgba(255,0,127,0.2);
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #060212;
+      border: 1px solid #7928ca;
+      border-radius: 8px;
+      color: #fff;
+      text-align: center;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .btn-flex { display: flex; gap: 10px; }
+    .btn-action {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid #ff007f;
+      background: #12092b;
+      color: #ff007f;
+    }
+
+    #statusMessage {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #ffb703;
+      font-weight: 600;
+    }
+
+    /* VIP PREDICTION SITE UI */
+    #predictionEngineSite {
+      display: none;
+      background: rgba(18, 8, 38, 0.95);
+      border: 1px solid #00ff66;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0,255,102,0.2);
+    }
+
+    .prediction-box {
+      background: #060212;
+      border: 2px dashed #7928ca;
+      padding: 20px;
+      border-radius: 12px;
+      margin: 15px 0;
+    }
+
+    .result-display {
+      font-size: 40px;
+      font-weight: 800;
+      color: #ffb703;
+      text-shadow: 0 0 20px rgba(255,183,3,0.8);
+    }
+
+    .btn-predict {
+      width: 100%;
+      background: linear-gradient(90deg, #00c853, #00e676);
+      color: #000;
+      font-weight: 800;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PERMANENT NAVBAR (কখনোই হাইড হবে না) -->
+  <div class="permanent-top-bar">
+    <button class="nav-btn btn-game-nav" onclick="openGameSite()">
+      🎮 GAME
+    </button>
+    <button class="nav-btn btn-engine-nav" onclick="openVipSite()">
+      ⚡ VIP ENGINE
+    </button>
+  </div>
+
+  <div class="content-area">
+    
+    <!-- 1. GAME SITE DISPLAY WINDOW -->
+    <iframe id="gameDisplayArea" src="" sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation"></iframe>
+
+    <!-- 2. VIP ENGINE SITE WINDOW -->
+    <div id="vipMainSection">
+      <div class="brand-header">OWNER MARUF</div>
+
+      <!-- UID Request Window -->
+      <div class="access-box" id="accessBox">
+        <h3 style="color:#ffb703; font-size:14px; margin-bottom:12px;">VIP ENGINE ACCESS</h3>
+        <input type="text" id="uidInput" class="input-field" placeholder="Enter Game UID">
+        <input type="number" id="depositInput" class="input-field" placeholder="Enter Deposit Amount">
+        
+        <div class="btn-flex">
+          <button class="btn-action" onclick="requestAccess()">REQUEST ACCESS</button>
+          <button class="btn-action" onclick="checkAccessStatus()">CHECK ACCESS</button>
+        </div>
+        <div id="statusMessage"></div>
+      </div>
+
+      <!-- Live Prediction Dashboard -->
+      <div id="predictionEngineSite">
+        <h2 style="color:#00ff66; font-size:18px;">VIP PREDICTION ENGINE</h2>
+        <p style="font-size:12px; color:#aaa;">ACTIVE UID: <span id="activeUidDisplay" style="color:#00ff66;">-</span></p>
+
+        <div class="prediction-box">
+          <p style="font-size:13px; color:#ccc;">PERIOD: <span id="periodDisplay" style="color:#ff007f;">20260911001</span></p>
+          <div class="result-display" id="predictionResult">WAITING</div>
+        </div>
+
+        <button class="btn-predict" onclick="generatePrediction()">GET PREDICTION</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const CONFIG = {
+      REGISTRATION_URL: "https://dkwin9.com/#/register?invitationCode=763462176733",
+      BACKEND_URL: "https://YOUR_WORKER_SUBDOMAIN.workers.dev"
+    };
+
+    // Open Game Direct View
+    function openGameSite() {
+      const gameFrame = document.getElementById('gameDisplayArea');
+      if (gameFrame.src !== CONFIG.REGISTRATION_URL) {
+        gameFrame.src = CONFIG.REGISTRATION_URL;
+      }
+      gameFrame.style.display = 'block';
+      document.getElementById('vipMainSection').style.display = 'none';
+    }
+
+    // Open VIP Engine Site
+    function openVipSite() {
+      document.getElementById('gameDisplayArea').style.display = 'none';
+      document.getElementById('vipMainSection').style.display = 'block';
+    }
+
+    // Backend Request Handlers
+    async function requestAccess() {
+      const uid = document.getElementById('uidInput').value.trim();
+      const deposit = document.getElementById('depositInput').value.trim();
+      const msg = document.getElementById('statusMessage');
+
+      if (!uid || !deposit) {
+        msg.style.color = "#ff4d4d";
+        msg.innerText = "Enter UID & Deposit Amount!";
+        return;
+      }
+
+      msg.style.color = "#ffb703";
+      msg.innerText = "Submitting Request...";
+
+      try {
+        const res = await fetch(`${CONFIG.BACKEND_URL}/api/request`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid, deposit })
+        });
+        const data = await res.json();
+
+        if (data.status === "ACTIVE") {
+          launchPredictionSite(uid);
+        } else {
+          msg.innerText = "Access request submitted. Waiting for Admin Approval.";
+        }
+      } catch (err) {
+        msg.style.color = "#ff4d4d";
+        msg.innerText = "Connection Failed!";
+      }
+    }
+
+    async function checkAccessStatus() {
+      const uid = document.getElementById('uidInput').value.trim();
+      const msg = document.getElementById('statusMessage');
+
+      if (!uid) {
+        msg.style.color = "#ff4d4d";
+        msg.innerText = "Enter UID to check!";
+        return;
+      }
+
+      try {
+        const res = await fetch(`${CONFIG.BACKEND_URL}/api/check`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid })
+        });
+        const data = await res.json();
+
+        if (data.status === "ACTIVE") {
+          launchPredictionSite(uid);
+        } else {
+          msg.innerText = "Status: " + (data.status || "NOT APPROVED");
+        }
+      } catch (err) {
+        msg.style.color = "#ff4d4d";
+        msg.innerText = "Error Checking Status!";
+      }
+    }
+
+    function launchPredictionSite(uid) {
+      document.getElementById('accessBox').style.display = 'none';
+      document.getElementById('predictionEngineSite').style.display = 'block';
+      document.getElementById('activeUidDisplay').innerText = uid;
+    }
+
+    function generatePrediction() {
+      const resElem = document.getElementById('predictionResult');
+      resElem.innerText = "ANALYZING...";
+      setTimeout(() => {
+        const results = ["BIG 7", "SMALL 2", "BIG 9", "SMALL 1", "BIG 6"];
+        resElem.innerText = results[Math.floor(Math.random() * results.length)];
+        const period = document.getElementById('periodDisplay');
+        period.innerText = parseInt(period.innerText) + 1;
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
