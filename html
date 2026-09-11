@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OWNER MARUF - ADMIN PANEL</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+    body { background: #060212; color: #fff; padding: 20px; display: flex; justify-content: center; }
+    
+    .admin-card {
+      width: 100%;
+      max-width: 500px;
+      background: #120826;
+      border: 2px solid #ff007f;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 0 25px rgba(255,0,127,0.3);
+    }
+
+    h2 { text-align: center; color: #ffb703; margin-bottom: 15px; font-size: 20px; }
+    
+    .login-sec { text-align: center; margin-bottom: 20px; }
+    .input-field {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      background: #060212;
+      border: 1px solid #7928ca;
+      border-radius: 8px;
+      color: #fff;
+      text-align: center;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .btn {
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      transition: 0.3s;
+    }
+    .btn-login { background: #ff007f; color: #fff; }
+    
+    .user-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    .user-table th, .user-table td { border: 1px solid #7928ca; padding: 8px; text-align: center; font-size: 12px; }
+    .user-table th { background: #1a0b38; color: #ffb703; }
+
+    .btn-approve { background: #00c853; color: #000; border: none; padding: 5px 8px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    .btn-reject { background: #d50000; color: #fff; border: none; padding: 5px 8px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+    #adminDashboard { display: none; }
+    #statusText { text-align: center; color: #ffb703; margin-top: 10px; font-size: 12px; }
+  </style>
+</head>
+<body>
+
+  <div class="admin-card">
+    <h2>ADMIN PANEL (OWNER MARUF)</h2>
+
+    <!-- Admin Login Screen -->
+    <div id="loginArea" class="login-sec">
+      <input type="password" id="adminKeyInput" class="input-field" placeholder="Enter Admin Secret Key">
+      <button class="btn btn-login" onclick="loginAdmin()">LOGIN TO PANEL</button>
+      <div id="loginMsg" style="color:#ff4d4d; font-size:12px; margin-top:5px;"></div>
+    </div>
+
+    <!-- Admin Approval Dashboard -->
+    <div id="adminDashboard">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span style="font-size:14px; color:#00ff66;">Status: Connected</span>
+        <button class="btn" style="width:auto; background:#7928ca; color:#fff; padding:6px 12px;" onclick="loadPendingRequests()">🔄 REFRESH LIST</button>
+      </div>
+
+      <table class="user-table">
+        <thead>
+          <tr>
+            <th>UID</th>
+            <th>DEPOSIT</th>
+            <th>STATUS</th>
+            <th>ACTION</th>
+          </tr>
+        </thead>
+        <tbody id="requestListTable">
+          <tr><td colspan="4">Click Refresh to Load Requests...</td></tr>
+        </tbody>
+      </table>
+
+      <div id="statusText"></div>
+    </div>
+  </div>
+
+  <script>
+    // CONFIGURATION
+    const CONFIG = {
+      // ১. Cloudflare Worker-এর Backend Link বসাবেন
+      BACKEND_URL: "https://YOUR_WORKER_SUBDOMAIN.workers.dev",
+      
+      // ২. আপনার সিক্রেট এডমিন কি (এডমিন প্যানেলে ঢোকার পাসওয়ার্ড)
+      ADMIN_SECRET_KEY: "MARUF_VIP_ADMIN_2026" 
+    };
+
+    let activeKey = "";
+
+    function loginAdmin() {
+      const inputKey = document.getElementById('adminKeyInput').value.trim();
+      if (inputKey === CONFIG.ADMIN_SECRET_KEY) {
+        activeKey = inputKey;
+        document.getElementById('loginArea').style.display = 'none';
+        document.getElementById('adminDashboard').style.display = 'block';
+        loadPendingRequests();
+      } else {
+        document.getElementById('loginMsg').innerText = "Wrong Admin Secret Key!";
+      }
+    }
+
+    // ইউজারদের পেন্ডিং রিকোয়েস্ট লোড করার ফাংশন
+    async function loadPendingRequests() {
+      const tableBody = document.getElementById('requestListTable');
+      const statusText = document.getElementById('statusText');
+      statusText.innerText = "Fetching requests...";
+
+      try {
+        const res = await fetch(`${CONFIG.BACKEND_URL}/api/admin/all-requests`, {
+          headers: { 'Authorization': activeKey }
+        });
+        const requests = await res.json();
+
+        tableBody.innerHTML = "";
+        
+        if (!requests || requests.length === 0) {
+          tableBody.innerHTML = `<tr><td colspan="4">No Pending Requests Found!</td></tr>`;
+          statusText.innerText = "";
+          return;
+        }
+
+        requests.forEach(req => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><b>${req.uid}</b></td>
+            <td style="color:#ffb703;">৳${req.deposit}</td>
+            <td style="color:${req.status === 'ACTIVE' ? '#00ff66' : '#ff007f'}">${req.status}</td>
+            <td>
+              ${req.status !== 'ACTIVE' ? `<button class="btn-approve" onclick="updateStatus('${req.uid}', 'ACTIVE')">APPROVE</button>` : ''}
+              <button class="btn-reject" onclick="updateStatus('${req.uid}', 'REJECTED')">REJECT</button>
+            </td>
+          `;
+          tableBody.appendChild(tr);
+        });
+
+        statusText.innerText = "Updated successfully!";
+      } catch (err) {
+        statusText.innerText = "Failed to load requests from server.";
+      }
+    }
+
+    // এপ্রুভ বা রিজেক্ট বাটনে চাপ দিলে কাজ করবে
+    async function updateStatus(uid, status) {
+      const statusText = document.getElementById('statusText');
+      statusText.innerText = `Updating UID: ${uid} to ${status}...`;
+
+      try {
+        const res = await fetch(`${CONFIG.BACKEND_URL}/api/admin/update-status`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': activeKey 
+          },
+          body: JSON.stringify({ uid, status })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          alert(`UID ${uid} has been set to ${status}!`);
+          loadPendingRequests();
+        } else {
+          alert("Failed to update status!");
+        }
+      } catch (err) {
+        alert("Server communication error!");
+      }
+    }
+  </script>
+</body>
+</html>
